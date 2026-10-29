@@ -69,3 +69,7 @@ docs/       Guía de pruebas del día 1
 ## Licencia
 
 MIT, como el proyecto original. Ver `ORIGEN.md`.
+
+
+El resumen de decisiones, enlaces a las vistas previas y pendientes de la sesión en la nube está en
+`../HANDOFF-oficina-agentes.md`.
