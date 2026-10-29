@@ -21,6 +21,11 @@ Claude Code, catálogo de roles. Cambia el equipo, las herramientas y las reglas
 
 Lo que no cambia: la app web, la Oficina 3D, el chat con agentes, Telegram, el editor de vídeo local.
 
+La Oficina tiene dos vistas, con un selector arriba a la derecha de la escena: la **oficina** clásica (los personajes
+caminan con las entregas) y el **centro de mando** (`app/src/office/nucleo.js`): el coordinador es un núcleo holográfico
+en el centro, cada agente ocupa una estación alrededor y las tareas y entregas viajan como pulsos de luz. La elección se
+guarda en el navegador.
+
 ## Cómo se trabaja
 
 1. El **cazador** propone productos con datos de DropKiller y costos de Dropi. Tú apruebas uno: su nombre es el
