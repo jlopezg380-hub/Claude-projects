@@ -72,12 +72,12 @@ const LISTA = [
   'kaykit:couch', 'kaykit:couch-pillows', 'kaykit:armchair-pillows', 'kaykit:shelf-b-small-decorated', 'kaykit:shelf-b-large-decorated', 'kaykit:shelf-a-small', 'kaykit:cabinet-small-decorated', 'kaykit:lamp-standing', 'kaykit:table-low', 'kaykit:cactus-medium-a', 'kaykit:book-set', 'kaykit:pictureframe-standing-a', 'kaykit:rug-oval-a',
   'naturaleza:tree-default', 'naturaleza:tree-detailed', 'naturaleza:tree-fat', 'naturaleza:tree-oak', 'naturaleza:tree-tall', 'naturaleza:tree-palm', 'naturaleza:tree-palmdetailedshort', 'naturaleza:plant-bush', 'naturaleza:plant-bushdetailed', 'naturaleza:plant-bushlarge', 'naturaleza:plant-bushsmall', 'naturaleza:plant-flattall',
   'naturaleza:flower-purplea', 'naturaleza:flower-reda', 'naturaleza:flower-yellowa', 'naturaleza:grass', 'naturaleza:grass-large', 'naturaleza:rock-smalla', 'naturaleza:rock-smallb', 'naturaleza:rock-smallflata', 'naturaleza:stone-smalla', 'naturaleza:bridge-woodround', 'naturaleza:campfire-stones', 'naturaleza:lily-large', 'naturaleza:lily-small', 'naturaleza:pot-large', 'naturaleza:pot-small', 'naturaleza:log', 'naturaleza:stump-round',
-  'kaykitCiudad:streetlight.gltf', 'kaykitCiudad:bench.gltf', 'ciudad:planter', 'personajes:Pug',
+  'kaykitCiudad:streetlight', 'kaykitCiudad:bench', 'ciudad:planter', 'personajes:Pug',
 ]
 
 export class CampusScene {
-  constructor(container, { onHover, onSelect, modelosBase = '/modelos/' } = {}) {
-    this.container = container; this.onHover = onHover; this.onSelect = onSelect; this.modelosBase = modelosBase
+  constructor(container, { onHover, onSelect, modelosBase = '/modelos/', modelosExt = '.glb' } = {}) {
+    this.container = container; this.onHover = onHover; this.onSelect = onSelect; this.modelosBase = modelosBase; this.modelosExt = modelosExt
     this.chars = new Map(); this.selectedId = null; this.hoverId = null
     this.timer = new THREE.Timer(); this.keys = new Set(); this.mixers = []; this.lamparas = []
     this.listo = false; this.pendientes = null
@@ -116,7 +116,7 @@ export class CampusScene {
     this.nav = new NavGrid(B.x0, B.z0, B.x1, B.z1, 0.25)
     this.world = new THREE.Group(); this.scene.add(this.world)
     this.charGroup = new THREE.Group(); this.scene.add(this.charGroup)
-    this.modelos = new Modelos(this.modelosBase)
+    this.modelos = new Modelos(this.modelosBase, this.modelosExt)
 
     this.composer = new EffectComposer(this.renderer)
     this.composer.addPass(new RenderPass(this.scene, this.camera))
@@ -229,7 +229,7 @@ export class CampusScene {
   }
 
   lampara(g, x, z, h = 2.0) { cyl(g, 0.008, 0.008, 1.0, MAT.dark, x, h + 0.5, z); cyl(g, 0.05, 0.2, 0.2, std('#f3efe8', { side: THREE.DoubleSide }), x, h, z); add(g, new THREE.SphereGeometry(0.07, 12, 8), MAT.bulb, x, h - 0.05, z, { cast: false }) }
-  farol(x, z, luz = false) { const m = this.inst('kaykitCiudad:streetlight.gltf', x, z, { escala: 0.8 }); if (luz && this.highQuality) { const l = new THREE.PointLight(0xffb86b, 5, 7, 2); l.position.set(x, 2.2, z); this.world.add(l) } this.nav.blockRect(x, z, 0.3, 0.3, 0, 0.2); return m }
+  farol(x, z, luz = false) { const m = this.inst('kaykitCiudad:streetlight', x, z, { escala: 0.8 }); if (luz && this.highQuality) { const l = new THREE.PointLight(0xffb86b, 5, 7, 2); l.position.set(x, 2.2, z); this.world.add(l) } this.nav.blockRect(x, z, 0.3, 0.3, 0, 0.2); return m }
   pantalla(g, kind, w, h, x, y, z, ry = 0) { const p = new THREE.Group(); p.position.set(x, y, z); p.rotation.y = ry; g.add(p); rbox(p, w + 0.08, h + 0.08, 0.06, MAT.dark, 0, 0, 0, {}, 0.02); add(p, new THREE.PlaneGeometry(w, h), pantallaMat(kind), 0, 0, 0.035, { cast: false }); return p }
   tablero(g, kind, w, h, x, y, z, ry = 0) { const p = new THREE.Group(); p.position.set(x, y, z); p.rotation.y = ry; g.add(p); rbox(p, w + 0.1, h + 0.1, 0.05, std('#e3cfa8'), 0, 0, 0, {}, 0.02); add(p, new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: textura(kind), roughness: 0.9 }), 0, 0, 0.03, { cast: false }); return p }
   // coloca un modelo dentro del grupo de un módulo (coordenadas locales) y bloquea su huella si se pide
@@ -420,7 +420,7 @@ export class CampusScene {
     arboles.forEach(([x, z, t], i) => { this.inst('naturaleza:' + (i % 3 === 0 ? 'tree-default-fall' : t), x, z, { escala: 1.3 + rnd() * 0.6, ry: rnd() * 6 }); this.nav.blockRect(x, z, 0.6, 0.6, 0, 0.2) })
     this.inst('naturaleza:tree-default-fall', -8.2, -0.2, { escala: 1.0 }); this.inst('naturaleza:tree-default-fall', 9.2, -0.4, { escala: 0.95 })
     for (const [x, z, l] of [[-8.2, -3.6, true], [8.8, -3.6, true], [-8.2, 0.9, false], [9.0, 4.3, true], [-7.4, 6.5, false], [1.4, 6.3, true], [9.0, 6.6, false], [-5.8, -1.2, false], [2.4, 4.6, false], [-15.2, 8.8, false], [15.4, -9.2, false]]) this.farol(x, z, l)
-    this.inst('kaykitCiudad:bench.gltf', 7.0, 5.2, { escala: 0.9, ry: Math.PI / 2 }); this.inst('ciudad:planter', -5.5, 5.8, { escala: 0.8 })
+    this.inst('kaykitCiudad:bench', 7.0, 5.2, { escala: 0.9, ry: Math.PI / 2 }); this.inst('ciudad:planter', -5.5, 5.8, { escala: 0.8 })
   }
 
   // ---------- personajes ----------

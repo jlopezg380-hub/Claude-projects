@@ -15,8 +15,8 @@ export const PAQUETES = {
 }
 
 export class Modelos {
-  constructor(base = '/modelos/') {
-    this.base = base
+  constructor(base = '/modelos/', extension = '.glb') {
+    this.base = base; this.extension = extension
     this.loader = new GLTFLoader()
     this.promesas = new Map()
     this.listo = new Map()
@@ -27,7 +27,7 @@ export class Modelos {
     const i = nombre.indexOf(':')
     const paq = PAQUETES[nombre.slice(0, i)], archivo = nombre.slice(i + 1)
     if (!paq) throw new Error('Paquete desconocido: ' + nombre)
-    return { url: this.base + paq.carpeta + archivo + (archivo.endsWith('.gltf') ? '' : '.glb'), escala: paq.escala }
+    return { url: this.base + paq.carpeta + archivo + (archivo.endsWith('.gltf') ? '' : this.extension), escala: paq.escala }
   }
 
   cargar(nombre) {
