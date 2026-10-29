@@ -1,0 +1,45 @@
+{
+  "_ayuda": "Copia como negocio.json (o deja que /instalar lo genere). Todo esto lo leen los agentes en cada tarea. 'equipo' son los agentes a crear con npm run crear-agentes; 'agentes' son ajustes por agente ya creado (clave = id de Firestore).",
+  "nombre": "Mi Tienda",
+  "descripcion": "Tienda de dropshipping contra entrega. Probamos productos con anuncios en Meta y vendemos por WhatsApp; los pedidos y envíos van por Dropi.",
+  "pais": "Colombia",
+  "modelo": "Dropshipping contra entrega (pago al recibir), sin tarjeta",
+  "canalVenta": "WhatsApp: el anuncio lleva al chat y ahí se cierra y se confirma el pedido",
+  "plataformaPedidos": "Dropi (proveedores, pedidos, transportadoras y novedades)",
+  "economia": {
+    "tasaEntregaEsperada": "70 %",
+    "cpaMaximoUSD": "4",
+    "margenMinimoPorPedidoUSD": "8",
+    "envio": "gratis para el cliente, lo paga la tienda"
+  },
+  "reglas": [
+    "Un solo CTA por anuncio más una línea de confianza del pago al recibir.",
+    "Nada de afirmaciones de salud ni promesas médicas.",
+    "El campo Cliente de cada tarea es el producto."
+  ],
+  "identidad": "Color principal #4700E0, acento #FFE600, estilo cercano y directo, fotos tipo móvil.",
+  "tono": "Cercano, claro y directo. Tuteo. Español latino neutro, sin regionalismos.",
+  "color": "#4700E0",
+  "idioma": "español",
+  "dueno": { "nombre": "Ana", "email": "ana@gmail.com" },
+  "equipo": [
+    { "nombre": "Nova", "rol": "coordinador" },
+    { "nombre": "Radar", "rol": "cazador_productos" },
+    { "nombre": "Pluma", "rol": "guionista_ugc" },
+    { "nombre": "Lienzo", "rol": "director_arte" },
+    { "nombre": "Rodaje", "rol": "productor_video" },
+    { "nombre": "Corte", "rol": "editor_video" },
+    { "nombre": "Cierre", "rol": "vendedor_whatsapp" },
+    { "nombre": "Bodega", "rol": "operaciones_dropi" },
+    { "nombre": "Metrica", "rol": "analista_ads" }
+  ],
+  "agentes": {
+    "ID_DEL_AGENTE_EN_FIRESTORE": {
+      "rol": "productor_video",
+      "carpeta": "Rodaje",
+      "presupuestoUSD": 3,
+      "herramientasExtra": [],
+      "instrucciones": ["Instrucción adicional solo para este agente"]
+    }
+  }
+}

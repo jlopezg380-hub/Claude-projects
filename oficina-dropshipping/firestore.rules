@@ -1,0 +1,147 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isAdmin() {
+      return isAuth() && userDoc().role == 'admin';
+    }
+    function isEmployee() {
+      return isAuth() && userDoc().role == 'empleado';
+    }
+    function isActiveUser() {
+      return isAdmin() || isEmployee();
+    }
+    // Motor de agentes (tu PC): usuario robot de correo/contraseña, sin doc en users. /instalar pone su correo.
+    function isAgentBot() {
+      return isAuth() && request.auth.token.email == '__CORREO_ROBOT__';
+    }
+    function isAgentTask(data) {
+      return exists(/databases/$(database)/documents/agents/$(data.asignado));
+    }
+    // Dueño de la cuenta (super admin). /instalar pone su correo.
+    function isOwner() {
+      return isAuth() && request.auth.token.email == '__CORREO_DUENO__';
+    }
+    function inviteFor(email) {
+      return get(/databases/$(database)/documents/invites/$(email)).data;
+    }
+    function hasInvite(email) {
+      return exists(/databases/$(database)/documents/invites/$(email));
+    }
+    // Campos que solo un administrador puede cambiar en un perfil
+    function touchesProtectedUserFields() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isSuper', 'email']);
+    }
+
+    // Users: cada usuario lee su propio doc; los activos leen a todos. Crear exige el email real de la cuenta.
+    // Un usuario solo puede editar su propio perfil sin tocar role, isSuper ni email (cierra la escalada de privilegios).
+    match /users/{userId} {
+      allow read: if isAuth() && (request.auth.uid == userId || isActiveUser() || isAgentBot());
+      // Al crear, el rol solo puede ser 'pending', salvo el dueño (admin) o un invitado (el rol de su invitación).
+      allow create: if isAuth() && request.auth.uid == userId
+        && request.resource.data.email == request.auth.token.email
+        && (
+          !('role' in request.resource.data) || request.resource.data.role == 'pending'
+          || (isOwner() && request.resource.data.role == 'admin')
+          || (hasInvite(request.auth.token.email) && request.resource.data.role == inviteFor(request.auth.token.email).role)
+        );
+      allow update: if isAuth() && (
+        isAdmin() ||
+        (request.auth.uid == userId && !touchesProtectedUserFields()) ||
+        // El dueño siempre puede recuperar su rol de admin en su propio perfil
+        (request.auth.uid == userId && isOwner()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role']) && request.resource.data.role == 'admin')
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Tasks: solo usuarios activos y el robot las leen; empleados editan solo las suyas; solo admin elimina
+    match /tasks/{taskId} {
+      allow read: if isActiveUser() || isAgentBot();
+      // El coordinador y las rutinas (vía el robot) solo pueden crear tareas asignadas a agentes
+      allow create: if isActiveUser() || (isAgentBot() && isAgentTask(request.resource.data));
+      allow update: if isAuth() && (
+        isAdmin() ||
+        (isEmployee() && (
+          resource.data.asignado == request.auth.uid ||
+          resource.data.createdBy == request.auth.token.email ||
+          // Auto-asignarse: un empleado puede reclamar una tarea PENDIENTE para si mismo
+          (resource.data.estado == 'pendiente' && request.resource.data.asignado == request.auth.uid)
+        )) ||
+        // El robot solo toca tareas de agentes y no puede reasignarlas
+        (isAgentBot() && isAgentTask(resource.data) && request.resource.data.asignado == resource.data.asignado)
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Config (lista de productos/clientes, estado del motor): leen los activos y el robot; escribe admin
+    match /config/{docId} {
+      allow read: if isActiveUser() || isAgentBot();
+      allow write: if isAdmin() || (isAgentBot() && docId == 'agentWorker');
+    }
+
+    // Invitaciones: solo admins gestionan; el invitado solo lee y borra la suya al registrarse
+    match /invites/{email} {
+      allow read, delete: if isAuth() && (isAdmin() || request.auth.token.email == email);
+      allow create, update: if isAdmin();
+    }
+
+    // Muro de discusión del equipo
+    match /discussions/{postId} {
+      allow read: if isActiveUser();
+      allow create, update: if isActiveUser();
+      allow delete: if isAuth() && (isAdmin() || resource.data.uid == request.auth.uid);
+    }
+
+    // Discusión (muro público interno)
+    match /posts/{postId} {
+      allow read: if isActiveUser();
+      allow create: if isActiveUser();
+      allow update: if isActiveUser();
+      allow delete: if isAuth() && (isAdmin() || resource.data.authorUid == request.auth.uid);
+    }
+
+    // Agentes de IA: los activos y el robot los ven; solo administradores los gestionan
+    match /agents/{agentId} {
+      allow read: if isActiveUser() || isAgentBot();
+      allow write: if isAdmin();
+      // El instalador crea los agentes iniciales a través del robot del motor
+      allow create: if isAgentBot();
+    }
+
+    // Chat con los agentes (uno por agente + 'grupo'): administradores y el robot del motor
+    match /agentChats/{chatId}/mensajes/{msgId} {
+      allow read: if isAdmin() || isAgentBot();
+      allow create: if isAgentBot() || (isAdmin() && request.resource.data.from == 'humano');
+      allow update: if isAgentBot();
+      allow delete: if isAdmin();
+    }
+
+    // Registro de horas trabajadas por día: cada usuario solo escribe el suyo
+    match /worklog/{logId} {
+      allow read: if isActiveUser();
+      allow create, update: if isActiveUser() && request.resource.data.uid == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    // Chat privado
+    match /chats/{chatId} {
+      allow read: if isActiveUser();
+      allow write: if isActiveUser() && chatId.matches('.*' + request.auth.uid + '.*');
+
+      match /messages/{msgId} {
+        allow read: if isActiveUser() && chatId.matches('.*' + request.auth.uid + '.*');
+        allow create: if isActiveUser()
+          && chatId.matches('.*' + request.auth.uid + '.*')
+          && request.resource.data.from == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+  }
+}

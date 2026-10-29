@@ -1,0 +1,145 @@
+{
+  "_ayuda": "Modelos de la pasarela fal.ai usados por generar_imagen y generar_video. Los endpoints y precios son los conocidos al crear este archivo y DEBEN confirmarse en la calibración del día 1 en https://fal.ai/models: corrige endpoint, precio y parámetros de cada entrada marcada con 'verificar'. precioPorSegundo y precioPorImagen están en USD y son estimaciones que alimentan los topes.",
+  "pasarela": "fal",
+  "imagenes": {
+    "flux_schnell": {
+      "descripcion": "Imágenes rápidas y baratas para escenas, fondos y borradores.",
+      "endpoint": "fal-ai/flux/schnell",
+      "precioPorImagen": 0.003,
+      "campoAspecto": "image_size",
+      "aspectoPorDefecto": "portrait_16_9",
+      "parametros": {
+        "num_images": 1
+      },
+      "verificar": true
+    },
+    "flux_dev": {
+      "descripcion": "Más calidad que schnell para fotos de producto en escena.",
+      "endpoint": "fal-ai/flux/dev",
+      "precioPorImagen": 0.025,
+      "campoAspecto": "image_size",
+      "aspectoPorDefecto": "portrait_16_9",
+      "parametros": {
+        "num_images": 1
+      },
+      "verificar": true
+    },
+    "nano_banana": {
+      "descripcion": "Generación y edición con referencias: meter la foto real del producto en una escena conservando la etiqueta.",
+      "endpoint": "fal-ai/nano-banana",
+      "endpointEdicion": "fal-ai/nano-banana/edit",
+      "campoReferencias": "image_urls",
+      "precioPorImagen": 0.039,
+      "parametros": {
+        "num_images": 1,
+        "output_format": "jpeg"
+      },
+      "verificar": true
+    }
+  },
+  "videos": {
+    "hailuo_02_std": {
+      "descripcion": "B-roll barato con buena física y personas. Sin voz. Texto a vídeo o desde imagen.",
+      "endpoint": "fal-ai/minimax/hailuo-02/standard/text-to-video",
+      "endpointImagen": "fal-ai/minimax/hailuo-02/standard/image-to-video",
+      "campoImagen": "image_url",
+      "precioPorSegundo": 0.045,
+      "duraciones": [
+        6,
+        10
+      ],
+      "duracionPorDefecto": 6,
+      "campoDuracion": "duration",
+      "formatoDuracion": "texto",
+      "parametros": {
+        "prompt_optimizer": true
+      },
+      "verificar": true
+    },
+    "wan_25": {
+      "descripcion": "Escenas y b-roll, con audio nativo opcional. Mismo modelo que WanGP pero completo.",
+      "endpoint": "fal-ai/wan-25-preview/text-to-video",
+      "endpointImagen": "fal-ai/wan-25-preview/image-to-video",
+      "campoImagen": "image_url",
+      "precioPorSegundo": 0.05,
+      "duraciones": [
+        5,
+        10
+      ],
+      "duracionPorDefecto": 5,
+      "campoDuracion": "duration",
+      "formatoDuracion": "texto",
+      "campoResolucion": "resolution",
+      "resolucionPorDefecto": "720p",
+      "campoAspecto": "aspect_ratio",
+      "aspectoPorDefecto": "9:16",
+      "parametros": {},
+      "verificar": true
+    },
+    "kling_turbo": {
+      "descripcion": "Producto desde tu foto con movimiento controlado. Sin voz.",
+      "endpoint": "fal-ai/kling-video/v2.5-turbo/pro/text-to-video",
+      "endpointImagen": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+      "campoImagen": "image_url",
+      "precioPorSegundo": 0.07,
+      "duraciones": [
+        5,
+        10
+      ],
+      "duracionPorDefecto": 5,
+      "campoDuracion": "duration",
+      "formatoDuracion": "texto",
+      "campoAspecto": "aspect_ratio",
+      "aspectoPorDefecto": "9:16",
+      "parametros": {
+        "negative_prompt": "blur, distort, low quality, text, watermark"
+      },
+      "verificar": true
+    },
+    "veo_31_fast": {
+      "descripcion": "Clip con voz nativa en español y labios sincronizados. Para bloques en los que alguien habla.",
+      "endpoint": "fal-ai/veo3.1/fast",
+      "endpointImagen": "fal-ai/veo3.1/fast/image-to-video",
+      "campoImagen": "image_url",
+      "precioPorSegundo": 0.15,
+      "duraciones": [
+        4,
+        6,
+        8
+      ],
+      "duracionPorDefecto": 8,
+      "campoDuracion": "duration",
+      "formatoDuracion": "texto_s",
+      "campoAspecto": "aspect_ratio",
+      "aspectoPorDefecto": "9:16",
+      "campoResolucion": "resolution",
+      "resolucionPorDefecto": "720p",
+      "campoAudio": "generate_audio",
+      "audioPorDefecto": true,
+      "parametros": {},
+      "verificar": true
+    },
+    "seedance_15_pro": {
+      "descripcion": "Clips con referencia de personaje y audio; alternativa a Veo para avatares.",
+      "endpoint": "fal-ai/bytedance/seedance/v1.5/pro/text-to-video",
+      "endpointImagen": "fal-ai/bytedance/seedance/v1.5/pro/image-to-video",
+      "campoImagen": "image_url",
+      "precioPorSegundo": 0.06,
+      "duraciones": [
+        5,
+        10
+      ],
+      "duracionPorDefecto": 5,
+      "campoDuracion": "duration",
+      "formatoDuracion": "texto",
+      "campoAspecto": "aspect_ratio",
+      "aspectoPorDefecto": "9:16",
+      "campoResolucion": "resolution",
+      "resolucionPorDefecto": "720p",
+      "campoAudio": "generate_audio",
+      "audioPorDefecto": false,
+      "parametros": {},
+      "verificar": true
+    }
+  }
+}

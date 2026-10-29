@@ -1,0 +1,25 @@
+{
+  "_ayuda": "Tareas que el motor crea solas cada día a la hora indicada (hora local del PC del motor). 'dias' usa 0=domingo … 6=sábado; vacío = todos los días. 'agente' es el nombre exacto del agente en la Oficina. La tarea se crea una sola vez por día aunque el motor se reinicie.",
+  "rutinas": [
+    {
+      "id": "reporte-pedidos",
+      "hora": "07:30",
+      "dias": [1, 2, 3, 4, 5, 6],
+      "agente": "Bodega",
+      "tarea": "Reporte diario de pedidos y novedades",
+      "descripcion": "Revisa Dropi y entrega el reporte del día: pedidos nuevos, pendientes de confirmar, en reparto, con novedad de transportadora, devueltos y entregados. Lista los que requieren acción hoy con el mensaje sugerido para cada cliente, la tasa de entrega de la semana y alertas por ciudad o transportadora.",
+      "prioridad": "alta",
+      "cliente": ""
+    },
+    {
+      "id": "radar-productos",
+      "hora": "08:00",
+      "dias": [1, 4],
+      "agente": "Radar",
+      "tarea": "Radar de productos de la semana",
+      "descripcion": "Con daily_radar y find_winning_products en el país del negocio, propone máximo 5 productos nuevos con evidencia y economía por unidad. Incluye para cada uno 3 ángulos que ya usa la competencia.",
+      "prioridad": "media",
+      "cliente": ""
+    }
+  ]
+}

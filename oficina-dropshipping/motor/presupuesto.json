@@ -1,0 +1,6 @@
+{
+  "_ayuda": "Topes de gasto en USD para las herramientas generar_imagen y generar_video. Se pueden sobrescribir en motor/.env con TOPE_TAREA_USD, TOPE_DIARIO_USD y TOPE_MENSUAL_USD. El gasto se anota en motor/logs/gasto.json.",
+  "topePorTareaUSD": 3,
+  "topeDiarioUSD": 5,
+  "topeMensualUSD": 60
+}
