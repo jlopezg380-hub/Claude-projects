@@ -3,7 +3,7 @@ import { useApp } from '../App.jsx'
 import { db } from '../firebase.js'
 import { doc, updateDoc, addDoc, deleteDoc, collection, serverTimestamp, Timestamp, onSnapshot } from 'firebase/firestore'
 import { OfficeScene } from '../office/scene.js'
-import { CommandScene } from '../office/nucleo.js'
+import { CampusScene } from '../office/campus.js'
 import Icon from '../components/Icons.jsx'
 import AgentModal, { AgentAvatar } from '../components/AgentModal.jsx'
 import AvatarModal from '../components/AvatarModal.jsx'
@@ -72,10 +72,10 @@ export default function OfficeView() {
   const [assignFor, setAssignFor] = useState(null)
   const [avatarFor, setAvatarFor] = useState(null)   // persona cuyo avatar 3D se edita
   const [chatWith, setChatWith] = useState(null)     // null | 'grupo' | agente
-  // Vista de la escena: 'oficina' (clásica) o 'nucleo' (centro de mando: el coordinador es el núcleo y reparte con pulsos de luz)
-  const [vista, setVistaState] = useState(() => { try { return localStorage.getItem('office_vista') === 'nucleo' ? 'nucleo' : 'oficina' } catch { return 'oficina' } })
+  // Vista de la escena: 'campus' (módulos con modelos 3D) u 'oficina' (clásica)
+  const [vista, setVistaState] = useState(() => { try { return localStorage.getItem('office_vista') === 'oficina' ? 'oficina' : 'campus' } catch { return 'campus' } })
   const setVista = (v) => { setVistaState(v); try { localStorage.setItem('office_vista', v) } catch {} }
-  const nucleo = vista === 'nucleo'
+  const campus = vista === 'campus'
 
   // Reloj: actualiza estados (fin de descansos, timers) cada 5 s
   useEffect(() => {
@@ -144,6 +144,7 @@ export default function OfficeView() {
           id: `a:${a.id}`, kind: 'agente', ref: a, name: a.name, fullName: a.name,
           role: a.role, status, task: working || paused, look: a.look || {},
           place: nextPlace(status, home), activity: ACTIVITY[status] || 'idle',
+          puesto: home.type === 'desk' ? home.index : undefined,
         })
       })
     return list
@@ -204,7 +205,7 @@ export default function OfficeView() {
 
   // ===== Montaje de la escena 3D =====
   useEffect(() => {
-    const Scene = vista === 'nucleo' ? CommandScene : OfficeScene
+    const Scene = vista === 'campus' ? CampusScene : OfficeScene
     const scene = new Scene(containerRef.current, {
       onHover: (id, x, y) => setHover(id ? { id, x, y } : null),
       onSelect: (id) => setSelectedId(id),
@@ -215,22 +216,15 @@ export default function OfficeView() {
 
   useEffect(() => {
     sceneRef.current?.setCharacters(characters.map(c => {
-      // En la oficina clásica el personaje camina con la carpeta; en el centro de mando nadie se mueve: la entrega es un pulso de luz
-      const busy = !nucleo && errand?.who === c.id && byId[errand.to]
+      const busy = errand?.who === c.id && byId[errand.to]
       return {
-        id: c.id, name: busy ? c.name + ' · ' + errand.label : c.name, look: c.look,
+        id: c.id, kind: c.kind, role: c.role, puesto: c.puesto, name: busy ? c.name + ' · ' + errand.label : c.name, look: c.look,
         place: busy ? { type: 'visit', targetId: errand.to } : c.place,
         activity: busy ? 'carry' : c.activity,
         statusColor: STATUS[c.status].color,
       }
     }))
   }, [characters, errand, byId, vista])
-
-  useEffect(() => {
-    if (!errand || !nucleo) return
-    const color = /jefe/i.test(errand.label) ? 0xf5b942 : /coordinador/i.test(errand.label) ? 0x34d399 : 0x22d3ee
-    sceneRef.current?.pulse?.(errand.who, errand.to, { color, label: errand.label.replace(/^entregando /, '') })
-  }, [errand, vista])
 
   useEffect(() => { sceneRef.current?.select(selectedId) }, [selectedId, vista])
 
@@ -460,22 +454,22 @@ export default function OfficeView() {
         </aside>
 
         {/* ===== Escena 3D ===== */}
-        <div className={`office-stage${nucleo ? ' office-stage-nucleo' : ''}`}>
+        <div className={`office-stage${campus ? ' office-stage-campus' : ''}`}>
           <div ref={containerRef} className="office-canvas" />
           <div className="office-stage-actions">
             <div className="office-vista" role="group" aria-label="Vista de la escena">
-              <button className={`btn btn-sm ${!nucleo ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setVista('oficina')}>Oficina</button>
-              <button className={`btn btn-sm ${nucleo ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setVista('nucleo')}>Centro de mando</button>
+              <button className={`btn btn-sm ${campus ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setVista('campus')}>Campus</button>
+              <button className={`btn btn-sm ${!campus ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setVista('oficina')}>Oficina clásica</button>
             </div>
             <button className="icon-btn office-reset" onClick={() => sceneRef.current?.resetView()} title="Centrar vista">
               <Icon name="target" size={15} />
             </button>
           </div>
           <div className="office-controls-hint">
-            {nucleo ? (
+            {campus ? (
               <>
                 <span><kbd>Arrastrar</kbd> girar</span>
-                <span><kbd>Q</kbd><kbd>E</kbd> girar</span>
+                <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> moverte</span>
                 <span><kbd>Rueda</kbd> zoom</span>
                 <span><kbd>R</kbd> centrar</span>
               </>

@@ -21,10 +21,12 @@ Claude Code, catálogo de roles. Cambia el equipo, las herramientas y las reglas
 
 Lo que no cambia: la app web, la Oficina 3D, el chat con agentes, Telegram, el editor de vídeo local.
 
-La Oficina tiene dos vistas, con un selector arriba a la derecha de la escena: la **oficina** clásica (los personajes
-caminan con las entregas) y el **centro de mando** (`app/src/office/nucleo.js`): el coordinador es un núcleo holográfico
-en el centro, cada agente ocupa una estación alrededor y las tareas y entregas viajan como pulsos de luz. La elección se
-guarda en el navegador.
+La Oficina tiene dos vistas, con un selector arriba a la derecha de la escena. El **campus** (`app/src/office/campus.js`)
+es la vista principal: un campus al aire libre con módulos redondeados, uno por agente, con su nombre y su rol en la banda
+y el decorado de su oficio; el coordinador ocupa el pabellón central, la dirección su oficina de vidrio, y hay cafetería,
+sala de reuniones, zona de descanso y terraza. Usa modelos 3D de dominio público (Kenney, KayKit, Quaternius; ver
+`app/public/modelos/LICENCIAS.md`) y personajes animados que caminan entre módulos para recibir y entregar tareas.
+La **oficina clásica** es la escena original de Agentes IA 3D. La elección se guarda en el navegador.
 
 ## Cómo se trabaja
 
